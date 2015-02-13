@@ -1,5 +1,4 @@
 # Safeway
-Just4U safeway offers program checker
 
   Auto add Just4U offers to safeway card.
 Main idea to use it - create rule in Outlook and on arriving email from Safeway this script will verify 
