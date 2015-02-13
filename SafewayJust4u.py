@@ -1,12 +1,5 @@
 __author__ = 'Vasiliy'
-# Auto add Just4U offers to safeway card
-# Main idea to create rule in Outlook and on arriving email from Safeway
-# this script will verify if any new offers available, add them to account,
-# mark email as read, move to specified folder.
-# Make life easier if long time did not log in to Just4U account
-# Sometimes there hundreds offers and manually clicking is boring...
-# sample for bat file to execute in rule:
-# start /B pythonw your_file_location\SafewayJust4u.py -lg "your_email" -ps "your_password"
+# auto add items to safeway card
 
 from selenium import webdriver
 import selenium.webdriver.common.by
@@ -15,6 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from time import sleep
 from selenium.webdriver.common.keys import Keys
+from win32event import CreateMutex
+from win32api import CloseHandle, GetLastError
+from winerror import ERROR_ALREADY_EXISTS
+from sys import exit
+import psutil
 
 def params():
     """Import parameters from command line"""
@@ -32,6 +30,30 @@ def params():
 
     return username, password, pathlink
 
+APPNAME = 'chromedriver.exe'
+
+def kill_chromedriver():
+    for proc in psutil.process_iter():
+        name = str(proc.name)
+        print name
+        if name == APPNAME:
+            proc.kill()
+
+class singlescript:
+    """ Limits script to single instance """
+
+    def __init__(self):
+        self.mutexname = "scriptmutex_{D0E858DF-985E-4907-B7FB-8D732C3FC3B9}"
+        self.mutex = CreateMutex(None, False, self.mutexname)
+        self.lasterror = GetLastError()
+
+    def alreadyrunning(self):
+        return (self.lasterror == ERROR_ALREADY_EXISTS)
+
+    def __del__(self):
+        if self.mutex:
+            CloseHandle(self.mutex)
+
 class ACCOUNT:
     def __init__(self, username, password, path):
 
@@ -39,7 +61,6 @@ class ACCOUNT:
         self.password = password
         self.driver = None
         self.path = path
-
 
     def login(self):
         for i in xrange(3):
@@ -57,6 +78,17 @@ class ACCOUNT:
         base_url = self.path
         self.driver.get(base_url)
         self.driver.maximize_window()
+
+        # Verify that only single instance script is running
+        try:
+            checksingle = singlescript()
+            if checksingle.alreadyrunning():
+                print "Script already running, quit this instance"
+                self.quit()
+                kill_chromedriver()
+                exit(0)
+        except Exception, mess:
+            print (">>> Exception: %s" % str(mess))
 
         # Find menu
         print "Find menu Just4U on page"
@@ -335,6 +367,7 @@ def safeway_login():
             if result:
                 print ("Adding coupons to Safeway Card was successful")
                 result.close()
+                kill_chromedriver()
         else:
             print ("Login to Safeway failed:")
 
