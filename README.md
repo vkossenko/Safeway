@@ -8,7 +8,9 @@ if there any new offers available, add them to account, mark email as read, move
 manually clicking is boring...
 
 Sample for bat file to execute in rule:
+
   start /B pythonw your_file_location\SafewayJust4u.py -lg "your_email" -ps "your_password"
 
 In case of using executable:
+
   your_file_location\SafewayJust4u.exe -lg "your_email" -ps "your_password"
