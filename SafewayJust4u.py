@@ -30,13 +30,10 @@ def params():
 
     return username, password, pathlink
 
-APPNAME = 'chromedriver.exe'
-
 def kill_chromedriver():
     for proc in psutil.process_iter():
-        name = str(proc.name)
-        print name
-        if name == APPNAME:
+        name = str(proc.name).encode('ascii', 'ignore')
+        if name.__contains__('chromedriver'):
             proc.kill()
 
 class singlescript:
