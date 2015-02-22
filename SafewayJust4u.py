@@ -149,15 +149,29 @@ class ACCOUNT:
 
         getadd = self.driver.findspanclassaddclick("lt-button-primary-add")
         if len(getadd) != 0:
-            print "Added to card: " + str(len(getadd)) + " offers"
+            print "Added to card: " + str(len(getadd)) + " offers in Coupon Center"
         else:
-            print "Nothing to add: " + str(len(getadd)) + " offers available"
+            print "Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center"
 
         getoffers = self.driver.findbyid("headerMyCardCount")
         if len(getoffers.text) != 0:
             print "Total offers on Safeway card currently = %s" % str(getoffers.text[1:4])
 
-        return self.driver
+        print "Checking personal deals"
+        persdeals = self.driver.findlinkbyhref("/ShopStores/Justforu-PersonalizedDeals.page")
+        if persdeals:
+            try:
+                self.driver.myclick(persdeals)
+            except Exception, mess:
+                print (">>> Exception: %s" % str(mess))
+
+        getadd1 = self.driver.findspanclassaddclick("lt-button-primary-add")
+        if len(getadd1) != 0:
+            print "Added to card: " + str(len(getadd1)) + " personal offers"
+        else:
+            print "Nothing to add: " + str(len(getadd1)) + " personal offers available"
+
+            return self.driver
 
     def quit(self):
         try:
