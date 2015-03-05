@@ -1,3 +1,5 @@
+from win32com.server.exception import Exception
+
 __author__ = 'Vasiliy'
 # auto add items to safeway card
 
@@ -15,8 +17,11 @@ from sys import exit
 import psutil
 import os
 import logging
+import smtplib
+from email.mime.text import MIMEText
+import glob
 
-global logger
+#global logger
 
 def params():
     """Import parameters from command line"""
@@ -26,16 +31,20 @@ def params():
                         help='Enter email')
     parser.add_argument('-ps', '--password', required=True, dest='password',
                         help='Enter password')
+    parser.add_argument('-emailps', '--emailpassword', required=True, dest='emailpassword',
+                        help='Enter email password')
+
     args = parser.parse_args()
     username = args.user
     password = args.password
+    emailps = args.emailpassword
 
     pathlink = "https://www.safeway.com/ShopStores/OSSO-Login.page?goto=http%3A%2F%2Fwww.safeway.com%2F"
 
-    return username, password, pathlink
+    return username, password, pathlink, emailps
 
 def set_logging(name = "", path = "", level = "INFO"):
-    """Sets tool logging"""
+    """Set logging tools"""
 
     # global logger
     logger = logging.getLogger(name)
@@ -63,7 +72,60 @@ def set_logging(name = "", path = "", level = "INFO"):
     logger.addHandler(ch)
     return logger
 
-logger = set_logging()
+try:
+    print "Clean up old log files"
+    log_name = glob.glob("Just4you*.log")
+    i = 0
+    while i < len(log_name):
+        filepath = os.getcwd() + "\\" + str(log_name[i])
+        os.remove(filepath)
+    i+=1
+except:
+    pass
+else:
+    print "We do not have old log files in directory\r\n"
+
+
+logger = set_logging("Just4you")
+
+
+def email_results(msg):
+
+    sender = (params()[0])
+    receiver = (params()[0])
+    passw = (params()[3])
+
+    message =  MIMEText(msg)
+    message['Subject'] = "SMTP_SSL email with results from Just4you script"
+    message['From'] = sender
+    message['To'] = receiver
+
+    try:
+        try:
+            print "\r\nCreate SMTP_SSL object"
+            # smtpObj = smtplib.SMTP_SSL ('67.195.15.5', 465)
+            smtpObj = smtplib.SMTP_SSL ('outbound.att.net', 465)
+        except Exception, mess:
+            print "Error on SMTP object creation: " + str(mess)
+
+        try:
+            print "Secure login to outgoing mail server"
+            smtpObj.login(sender, passw)
+        except Exception, mess:
+            print "Error on login: " + str(mess)
+
+        try:
+            print "Attempt send email"
+            smtpObj.sendmail(sender, receiver, message.as_string())
+        except Exception, mess:
+            print "Error on send email: " + str(mess)
+        print "Close instance"
+        smtpObj.quit()
+
+        print ("\r\nEmail with results successfully sent")
+    except Exception, mess:
+        print ("Error: unable to send email %s") % str(mess)
+
 
 def kill_chromedriver():
     for proc in psutil.process_iter():
@@ -210,8 +272,7 @@ class ACCOUNT:
         if len(getoffers.text) != 0:
             logger.info("Total offers on Safeway card currently = %s" % str(getoffers.text[1:4]))
             print "Total offers on Safeway card currently = %s" % str(getoffers.text[1:4])
-
-            return self.driver
+        return self.driver
 
     def quit(self):
         try:
@@ -411,14 +472,23 @@ def safeway_login():
     pathlink = (params()[2])
 
     try:
+
         userlogin = ACCOUNT(username, password, params()[2])
         if userlogin:
             print "We login to: " + pathlink
             result = userlogin.login()
             if result:
-                print ("Adding coupons to Safeway Card was successful")
+                print ("\r\nAdding coupons to Safeway Card was successful")
                 result.close()
                 kill_chromedriver()
+
+            # open log file for reading , read, email  result with statistics
+                log_name = glob.glob("Just4you*.log")
+                filepath = os.getcwd() + "\\" + str(log_name[0])
+                msg = open(filepath, "r")
+                content = msg.read()
+                msg.close()
+                email_results(content)
         else:
             print ("Login to Safeway failed:")
 
