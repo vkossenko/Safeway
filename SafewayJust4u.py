@@ -111,7 +111,7 @@ def email_results(msg):
             print "Error on login: " + str(mess)
 
         try:
-            print "Attempt send email"
+            print "Attempt to send email"
             smtpObj.sendmail(sender, receiver, message.as_string())
         except Exception, mess:
             print "Error on send email: " + str(mess)
