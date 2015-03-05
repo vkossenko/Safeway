@@ -13,6 +13,10 @@ from win32api import CloseHandle, GetLastError
 from winerror import ERROR_ALREADY_EXISTS
 from sys import exit
 import psutil
+import os
+import logging
+
+global logger
 
 def params():
     """Import parameters from command line"""
@@ -29,6 +33,37 @@ def params():
     pathlink = "https://www.safeway.com/ShopStores/OSSO-Login.page?goto=http%3A%2F%2Fwww.safeway.com%2F"
 
     return username, password, pathlink
+
+def set_logging(name = "", path = "", level = "INFO"):
+    """Sets tool logging"""
+
+    # global logger
+    logger = logging.getLogger(name)
+
+    numeric_level = getattr(logging, level.upper(), None)
+    logger.setLevel(numeric_level)
+
+    #log to file
+    if not path:
+        path = os.path.curdir
+    else:
+        try:
+            os.makedirs(path)
+        except:
+            pass
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+    log = os.path.join(path, "%s_%s.log" % (name, time.strftime("%m%d%y_%H%M%S")))
+    fh = logging.FileHandler(log, "w")
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    #log to stdout
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    return logger
+
+logger = set_logging()
 
 def kill_chromedriver():
     for proc in psutil.process_iter():
@@ -149,13 +184,11 @@ class ACCOUNT:
 
         getadd = self.driver.findspanclassaddclick("lt-button-primary-add")
         if len(getadd) != 0:
+            logger.info("Added to card: " + str(len(getadd)) + " offers in Coupon Center")
             print "Added to card: " + str(len(getadd)) + " offers in Coupon Center"
         else:
+            logger.info("Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center")
             print "Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center"
-
-        getoffers = self.driver.findbyid("headerMyCardCount")
-        if len(getoffers.text) != 0:
-            print "Total offers on Safeway card currently = %s" % str(getoffers.text[1:4])
 
         print "Checking personal deals"
         persdeals = self.driver.findlinkbyhref("/ShopStores/Justforu-PersonalizedDeals.page")
@@ -167,9 +200,16 @@ class ACCOUNT:
 
         getadd1 = self.driver.findspanclassaddclick("lt-button-primary-add")
         if len(getadd1) != 0:
+            logger.info("Added to card: " + str(len(getadd1)) + " personal offers")
             print "Added to card: " + str(len(getadd1)) + " personal offers"
         else:
+            logger.info("Nothing to add: " + str(len(getadd1)) + " personal offers available")
             print "Nothing to add: " + str(len(getadd1)) + " personal offers available"
+
+        getoffers = self.driver.findbyid("headerMyCardCount")
+        if len(getoffers.text) != 0:
+            logger.info("Total offers on Safeway card currently = %s" % str(getoffers.text[1:4]))
+            print "Total offers on Safeway card currently = %s" % str(getoffers.text[1:4])
 
             return self.driver
 
