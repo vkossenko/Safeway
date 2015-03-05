@@ -1,5 +1,3 @@
-from win32com.server.exception import Exception
-
 __author__ = 'Vasiliy'
 # auto add items to safeway card
 
@@ -10,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from time import sleep
 from selenium.webdriver.common.keys import Keys
+from win32com.server.exception import Exception
 from win32event import CreateMutex
 from win32api import CloseHandle, GetLastError
 from winerror import ERROR_ALREADY_EXISTS
@@ -20,8 +19,6 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 import glob
-
-#global logger
 
 def params():
     """Import parameters from command line"""
@@ -87,7 +84,6 @@ else:
 
 
 logger = set_logging("Just4you")
-
 
 def email_results(msg):
 
