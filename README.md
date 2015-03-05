@@ -14,3 +14,5 @@ Sample for bat file to execute in rule:
 In case of using executable:
 
   your_file_location\SafewayJust4u.exe -lg "your_email" -ps "your_password" -emailps "your email_account password"
+  
+  p.s. Total offers on Safeway card currently = 665, wish I never did it manually :)
