@@ -338,7 +338,7 @@ class DRIVER(webdriver.Chrome):
 
     def findlinkbyhref(self, name):
         # Find link by HREF attribute and click it
-        print "*** Function findlinkbyhref started, href = %s" % str(name)
+        print "*** Function findlinksbyhref started, href = %s" % str(name)
         try:
             alllink = self.find_elements_by_tag_name('a')
             i = 0
@@ -375,7 +375,7 @@ class DRIVER(webdriver.Chrome):
 
     def findlinkbytext(self, text):
         # Find link by text attribute and click it
-        print "*** Function findlinkbytext started, link text = %s" % str(text)
+        print "*** Function findlinksbytext started, link text = %s" % str(text)
         try:
             alllink = self.find_elements_by_tag_name('a')
             i = 0
@@ -394,7 +394,7 @@ class DRIVER(webdriver.Chrome):
 
     def findlinkbyclass(self, name):
         # Find link by class name and click it
-        print "*** Function findlinkbyclass started, class name = %s" % str(name)
+        print "*** Function findlinksbyclass started, class name = %s" % str(name)
         try:
             alllink = self.find_elements_by_tag_name('a')
             i = 0
