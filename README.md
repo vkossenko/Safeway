@@ -1,5 +1,7 @@
 # Safeway
 
+* Currently not working due to major redesign Just4U pages, working on correction
+
   Auto add Just4U offers to Safeway card.
 Main idea to use it - create rule in Outlook and on arriving email from Safeway this script will verify 
 if there any new offers available, add them to account, mark email as read, move to specified folder.
