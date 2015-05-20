@@ -1,6 +1,7 @@
 __author__ = 'Vasiliy'
 # auto add items to safeway card
 
+from win32com.server.exception import Exception
 from selenium import webdriver
 import selenium.webdriver.common.by
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,7 +9,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from time import sleep
 from selenium.webdriver.common.keys import Keys
-from win32com.server.exception import Exception
 from win32event import CreateMutex
 from win32api import CloseHandle, GetLastError
 from winerror import ERROR_ALREADY_EXISTS
@@ -19,6 +19,8 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 import glob
+
+#global logger
 
 def params():
     """Import parameters from command line"""
@@ -35,8 +37,7 @@ def params():
     username = args.user
     password = args.password
     emailps = args.emailpassword
-
-    pathlink = "https://www.safeway.com/ShopStores/OSSO-Login.page?goto=http%3A%2F%2Fwww.safeway.com%2F"
+    pathlink = "https://www.safeway.com/"
 
     return username, password, pathlink, emailps
 
@@ -69,21 +70,25 @@ def set_logging(name = "", path = "", level = "INFO"):
     logger.addHandler(ch)
     return logger
 
-try:
-    print "Clean up old log files"
-    log_name = glob.glob("Just4you*.log")
-    i = 0
-    while i < len(log_name):
-        filepath = os.getcwd() + "\\" + str(log_name[i])
-        os.remove(filepath)
-    i+=1
-except:
-    pass
-else:
-    print "We do not have old log files in directory\r\n"
+def cleanup_log():
+    # clean existing log files from working dir
+    try:
+        print "Clean up old log files"
+        log_name = glob.glob("Just4you*.log")
+        i = 0
+        while i < len(log_name):
+            filepath = os.getcwd() + "\\" + str(log_name[i])
+            print "Completed"
+            os.remove(filepath)
+        i += 1
+    except:
+        pass
+    else:
+        print "We do not have old log files in directory\r\n"
 
 
 logger = set_logging("Just4you")
+
 
 def email_results(msg):
 
@@ -91,7 +96,7 @@ def email_results(msg):
     receiver = (params()[0])
     passw = (params()[3])
 
-    message =  MIMEText(msg)
+    message = MIMEText(msg)
     message['Subject'] = "SMTP_SSL email with results from Just4you script"
     message['From'] = sender
     message['To'] = receiver
@@ -99,8 +104,8 @@ def email_results(msg):
     try:
         try:
             print "\r\nCreate SMTP_SSL object"
-            # smtpObj = smtplib.SMTP_SSL ('67.195.15.5', 465)
             smtpObj = smtplib.SMTP_SSL ('outbound.att.net', 465)
+
         except Exception, mess:
             print "Error on SMTP object creation: " + str(mess)
 
@@ -111,7 +116,7 @@ def email_results(msg):
             print "Error on login: " + str(mess)
 
         try:
-            print "Attempt to send email"
+            print "Attempt send email"
             smtpObj.sendmail(sender, receiver, message.as_string())
         except Exception, mess:
             print "Error on send email: " + str(mess)
@@ -129,8 +134,8 @@ def kill_chromedriver():
         if name.__contains__('chromedriver'):
             proc.kill()
 
-class singlescript:
-    """ Limits script to single instance """
+class SINGLESCRIPT:
+    """ Limits number of running scripts to single instance """
 
     def __init__(self):
         self.mutexname = "scriptmutex_{D0E858DF-985E-4907-B7FB-8D732C3FC3B9}"
@@ -146,7 +151,6 @@ class singlescript:
 
 class ACCOUNT:
     def __init__(self, username, password, path):
-
         self.username = username
         self.password = password
         self.driver = None
@@ -171,7 +175,7 @@ class ACCOUNT:
 
         # Verify that only single instance script is running
         try:
-            checksingle = singlescript()
+            checksingle = SINGLESCRIPT()
             if checksingle.alreadyrunning():
                 print "Script already running, quit this instance"
                 self.quit()
@@ -183,20 +187,12 @@ class ACCOUNT:
         # Find menu
         print "Find menu Just4U on page"
         try:
-            getmenu = self.driver.findlinkbyhref("/ShopStores/Offers-Landing-IMG.page")
-            if getmenu:
-                self.driver.myclick(getmenu)
+            signin = self.driver.findlinksbytext("Sign In")
+            if signin:
+                self.driver.myclick(signin)
                 sleep(2)
-        except Exception, mess:
-            print (">>> Exception: %s" % str(mess))
-
-        # Move to coupon center page
-        print "Going to coupon page"
-        try:
-            getcoupon = self.driver.findlinkbyimg("/CMS/assets/media/LandingPages/NewCTAButtons/J4U_LP_CouponCenterPod_01.jpg")
-            if getcoupon:
-                self.driver.myclick(getcoupon)
-                sleep(15)
+            else:
+                print "Can't find menu Just4U"
         except Exception, mess:
             print (">>> Exception: %s" % str(mess))
 
@@ -222,17 +218,21 @@ class ACCOUNT:
         except Exception, mess:
             print (">>> Exception: %s" % str(mess))
 
+        # Find menu
+        print "Find menu Just4U on page"
         try:
-            print "Select show all offers on one page"
-            getall = self.driver.findselectbyid("j4u-items-per-page")
-            if getall:
-                sleep(10)
+            getmenu = self.driver.find_element_by_xpath('//*[@id="Offers-Landing-IMG_img_link_2"]/a')
+            if getmenu:
+                self.driver.myclick(getmenu)
+                sleep(2)
+            else:
+                print "Can't find menu Just4U"
         except Exception, mess:
             print (">>> Exception: %s" % str(mess))
 
         try:
             print "Check if any adds up"
-            addsoff = self.driver.findlinkbyclass("btuw-neverwarn")
+            addsoff = self.driver.findlinksbyclass("btuw-neverwarn")
             if addsoff:
                 self.driver.myclick(addsoff)
             else:
@@ -240,7 +240,27 @@ class ACCOUNT:
         except Exception, mess:
             print (">>> Exception: %s" % str(mess))
 
-        getadd = self.driver.findspanclassaddclick("lt-button-primary-add")
+        # Move to coupon center page
+        print "Going to coupon page"
+        try:
+            getcoupon = self.driver.findlinksbytext("Coupons & Deals")
+            if getcoupon:
+                self.driver.myclick(getcoupon)
+                sleep(15)
+        except Exception, mess:
+            print (">>> Exception: %s" % str(mess))
+
+        try:
+            print "Check if any adds up"
+            addsoff = self.driver.findlinksbyclass("btuw-neverwarn")
+            if addsoff:
+                self.driver.myclick(addsoff)
+            else:
+                pass
+        except Exception, mess:
+            print (">>> Exception: %s" % str(mess))
+
+        getadd = self.driver.findspanclassaddclick("Add")
         if len(getadd) != 0:
             logger.info("Added to card: " + str(len(getadd)) + " offers in Coupon Center")
             print "Added to card: " + str(len(getadd)) + " offers in Coupon Center"
@@ -248,26 +268,16 @@ class ACCOUNT:
             logger.info("Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center")
             print "Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center"
 
-        print "Checking personal deals"
-        persdeals = self.driver.findlinkbyhref("/ShopStores/Justforu-PersonalizedDeals.page")
-        if persdeals:
-            try:
-                self.driver.myclick(persdeals)
-            except Exception, mess:
-                print (">>> Exception: %s" % str(mess))
-
-        getadd1 = self.driver.findspanclassaddclick("lt-button-primary-add")
-        if len(getadd1) != 0:
-            logger.info("Added to card: " + str(len(getadd1)) + " personal offers")
-            print "Added to card: " + str(len(getadd1)) + " personal offers"
-        else:
-            logger.info("Nothing to add: " + str(len(getadd1)) + " personal offers available")
-            print "Nothing to add: " + str(len(getadd1)) + " personal offers available"
-
         getoffers = self.driver.findbyid("headerMyCardCount")
         if len(getoffers.text) != 0:
             logger.info("Total offers on Safeway card currently = %s" % str(getoffers.text[1:4]))
             print "Total offers on Safeway card currently = %s" % str(getoffers.text[1:4])
+
+        getgasrewards = self.driver.find_element_by_id("headerRewardsAvailable")
+        if len(getgasrewards.text) != 0:
+            logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text[1:2]))
+            print "Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text[1:2])
+
         return self.driver
 
     def quit(self):
@@ -336,7 +346,7 @@ class DRIVER(webdriver.Chrome):
         except Exception, mess:
             print (">>> Exception: %s" % str(mess))
 
-    def findlinkbyhref(self, name):
+    def findlinksbyhref(self, name):
         # Find link by HREF attribute and click it
         print "*** Function findlinksbyhref started, href = %s" % str(name)
         try:
@@ -344,7 +354,8 @@ class DRIVER(webdriver.Chrome):
             i = 0
             while i < len(alllink):
                 try:
-                    if str(alllink[i].get_attribute('href')).find(name) > -1:
+                    if str(alllink[i].get_attribute('href')).find(name) == name:
+                        print str(alllink[i].get_attribute('href'))
                         return alllink[i]
                 except:
                     pass
@@ -373,7 +384,7 @@ class DRIVER(webdriver.Chrome):
             print (">>> Exception: %s" % str(mess))
             return False
 
-    def findlinkbytext(self, text):
+    def findlinksbytext(self, text):
         # Find link by text attribute and click it
         print "*** Function findlinksbytext started, link text = %s" % str(text)
         try:
@@ -392,7 +403,7 @@ class DRIVER(webdriver.Chrome):
             print (">>> Exception: %s" % str(mess))
             return False
 
-    def findlinkbyclass(self, name):
+    def findlinksbyclass(self, name):
         # Find link by class name and click it
         print "*** Function findlinksbyclass started, class name = %s" % str(name)
         try:
@@ -411,7 +422,7 @@ class DRIVER(webdriver.Chrome):
             print (">>> Exception: %s" % str(mess))
             return False
 
-    def findspanclassaddclick(self, name):
+    def findspanclassaddclick(self,txt):
         # Find button by span text and click it
         print "*** Function findspanclassaddclick started"
         try:
@@ -420,8 +431,10 @@ class DRIVER(webdriver.Chrome):
             i = 0
             while i < len(allSpans):
                 try:
-                    if allSpans[i].get_attribute('class').find(name) > -1 and str(allSpans[i].text) == "Add" and \
-                            allSpans[i].is_displayed() and allSpans[i].is_enabled():
+
+                    if str(allSpans[i].text) == txt and allSpans[i].is_displayed() and allSpans[i].is_enabled():
+                        sleep(1)
+                        print str(allSpans[i].text)
                         allSpans[i].click()
                         total.append(allSpans[i])
                 except:
@@ -468,7 +481,6 @@ def safeway_login():
     pathlink = (params()[2])
 
     try:
-
         userlogin = ACCOUNT(username, password, params()[2])
         if userlogin:
             print "We login to: " + pathlink
@@ -485,6 +497,7 @@ def safeway_login():
                 content = msg.read()
                 msg.close()
                 email_results(content)
+
         else:
             print ("Login to Safeway failed:")
 
