@@ -15,5 +15,4 @@ In case of using executable:
 
   your_file_location\SafewayJust4u.exe -lg "your_email" -ps "your_password" -emailps "your email_account password"
   
-  p.s. Total offers on Safeway card currently = 659, glad I never did it manually :)
-  p.p.s Added available Gas Rewards reading.
+  p.s. Total offers on Safeway card currently = 659, glad I never did it manually :) Added available Gas Rewards reading.
