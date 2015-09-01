@@ -434,7 +434,7 @@ class DRIVER(webdriver.Chrome):
 
                     if str(allSpans[i].text) == txt and allSpans[i].is_displayed() and allSpans[i].is_enabled():
                         sleep(1)
-                        print str(allSpans[i].text)
+                        # print str(allSpans[i].text)
                         allSpans[i].click()
                         total.append(allSpans[i])
                 except:
@@ -503,5 +503,5 @@ def safeway_login():
 
     except Exception, mess:
         print (">>> Exception: %s" % str(mess))
-
+cleanup_log()
 safeway_login()
