@@ -11,7 +11,7 @@ Sample for bat file to execute in rule:
 
   start /B pythonw your_file_location\SafewayJust4u.py -lg "your_email" -ps "your_password" -emailps "your email_account password"
 
-In case of using executable:
+In case of using executable(removed temporarely):
 
   your_file_location\SafewayJust4u.exe -lg "your_email" -ps "your_password" -emailps "your email_account password"
   
