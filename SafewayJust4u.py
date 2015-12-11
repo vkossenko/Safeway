@@ -217,11 +217,18 @@ class ACCOUNT:
                 sleep(2)
         except Exception, mess:
             print (">>> Exception: %s" % str(mess))
+            
+        # Check if change store dialog up, dismiss it
+        sayno = self.driver.findbyid("ssDialogNoButton")
+        if sayno:
+            self.driver.myclick(sayno)
 
         # Find menu
         print "Find menu Just4U on page"
         try:
-            getmenu = self.driver.find_element_by_xpath('//*[@id="Offers-Landing-IMG_img_link_2"]/a')
+            # getmenu = self.driver.find_element_by_xpath('//*[@id="Offers-Landing-IMG_img_link_2"]/a')
+            # Offers-Landing-IMG_img_link_2
+	    getmenu = self.driver.findbyid("Offers-Landing-IMG_img_link_2")
             if getmenu:
                 self.driver.myclick(getmenu)
                 sleep(2)
@@ -232,7 +239,7 @@ class ACCOUNT:
 
         try:
             print "Check if any adds up"
-            addsoff = self.driver.findlinksbyclass("btuw-neverwarn")
+            addsoff = self.driver.findlinksbytext("Do Not Show Again")
             if addsoff:
                 self.driver.myclick(addsoff)
             else:
