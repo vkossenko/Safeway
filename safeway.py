@@ -239,6 +239,9 @@ class ACCOUNT:
         print ("Find menu Just4U on page")
       
         sleep(5)
+        #scroll to bottom page to make all add visible
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(60)
         getadd = self.driver.findspanclassaddclick("Add")
         if len(getadd) != 0:
             logger.info("Added to card: " + str(len(getadd)) + " offers in Coupon Center")
