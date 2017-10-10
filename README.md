@@ -7,6 +7,6 @@ if there any new offers available, add them to account, mark email as read, move
 manually clicking is boring...As a result of script execution you will get an email with statistics about added/total offers from different category. Web browser Chrome. You may need download chromedriver.exe in order to run this script and add path to chromedriver.exe to your system path variable. Download latest from here:
   https://sites.google.com/a/chromium.org/chromedriver/downloads
 
-Sample for bat file to execute in rule('emailps ' parameter is optional:
+Sample for bat file to execute in rule('emailps' parameter is optional:
 
-  start /B pythonw your_file_location\SafewayJust4u.py -lg "your_email" -ps "your_password" -emailps "your email_account password"
+  start /B pythonw your_file_location\safeway.py -lg "your_email" -ps "your_password" -emailps "your email_account password"
