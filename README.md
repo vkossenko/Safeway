@@ -10,3 +10,5 @@ manually clicking is boring...As a result of script execution you will get an em
 Sample for bat file to execute in rule('emailps' parameter is optional):
 
   start /B pythonw your_file_location\safeway.py -lg "your_email" -ps "your_password" -emailps "your email_account password"
+  
+  or use script launcher Just4You.exe (put it in the same directory with safeway.py)
