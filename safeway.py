@@ -20,7 +20,6 @@ import smtplib
 from email.mime.text import MIMEText
 import glob
 
-#global logger
 
 def params():
     """Import parameters from command line"""
@@ -240,26 +239,42 @@ class ACCOUNT:
       
         sleep(5)
         #scroll to bottom page to make all add visible
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        sleep(60)
-        getadd = self.driver.findspanclassaddclick("Add")
-        if len(getadd) != 0:
-            logger.info("Added to card: " + str(len(getadd)) + " offers in Coupon Center")
-            print ("Added to card: " + str(len(getadd)) + " offers in Coupon Center")
-        else:
-            logger.info("Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center")
-            print ("Nothing to add: " + str(len(getadd)) + " offers available in Coupon Center")
+        get_height = self.driver.execute_script("return document.body.scrollHeight")
+        get_screen_size = self.driver.get_window_size()
+        screen_y = get_screen_size["height"]
+        current_y = 0
+        current_offers = self.driver.findbyid("headerMyListCount")
+        logger.info("Current offers on Safeway card currently = {0}".format(current_offers.text))
+        
+        while len(self.driver.findspanclassaddclick("Add")) == 0:
+        
+            if  len(self.driver.findspanclassaddclick("Add")) != 0:
+                sleep(3)
+                self.driver.findspanclassaddclick("Add")
+            else:
+                cmd = "window.scrollTo(0, {0});".format(current_y + screen_y*2)
+                self.driver.execute_script(cmd)
+                sleep(3)
+                self.driver.findspanclassaddclick("Add")
+                current_y = self.driver.execute_script("return window.pageYOffset;")
+                get_height = self.driver.execute_script("return document.body.scrollHeight")
+                if current_y > get_height - get_screen_size["height"] < get_height:
+                    break
 
         getoffers = self.driver.findbyid("headerMyListCount")
         if len(getoffers.text) != 0:
             logger.info("Total offers on Safeway card currently = %s" % str(getoffers.text))
             print ("Total offers on Safeway card currently = %s" % str(getoffers.text))
+            
+        logger.info("Added {0} offers".format(int(getoffers.text) - int(current_offers.text)))
 
         getgasrewards = self.driver.find_element_by_id("headerRewardsAvailable")
-        if len(getgasrewards.text) != 0:
+        if len(getgasrewards.text) != "0":
             logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
             print ("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
-
+        else:
+            logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
+            print ("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
         return self.driver
 
     def quit(self):
