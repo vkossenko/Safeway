@@ -246,20 +246,37 @@ class ACCOUNT:
         current_offers = self.driver.findbyid("headerMyListCount")
         logger.info("Current offers on Safeway card currently = {0}".format(current_offers.text))
         
-        while len(self.driver.findspanclassaddclick("Add")) == 0:
-        
-            if  len(self.driver.findspanclassaddclick("Add")) != 0:
-                sleep(3)
+        #TODO: add good logic here ==========
+        offers_found = self.driver.findspanclassaddclick("Add")
+        if len(offers_found) > 0:
+            self.driver.findspanclassaddclick("Add")
+            cmd = "window.scrollTo(0, {0});".format(current_y + screen_y*2)
+            self.driver.execute_script(cmd)
+            current_y = self.driver.execute_script("return window.pageYOffset;")
+            while len(self.driver.findspanclassaddclick("Add")) != 0:
                 self.driver.findspanclassaddclick("Add")
-            else:
                 cmd = "window.scrollTo(0, {0});".format(current_y + screen_y*2)
                 self.driver.execute_script(cmd)
-                sleep(3)
-                self.driver.findspanclassaddclick("Add")
                 current_y = self.driver.execute_script("return window.pageYOffset;")
                 get_height = self.driver.execute_script("return document.body.scrollHeight")
                 if current_y > get_height - get_screen_size["height"] < get_height:
-                    break
+                    break                
+        else:          
+            while len(self.driver.findspanclassaddclick("Add")) == 0:
+                if  len(self.driver.findspanclassaddclick("Add")) != 0:
+                    sleep(3)
+                    self.driver.findspanclassaddclick("Add")
+                    cmd = "window.scrollTo(0, {0});".format(current_y + screen_y*2)
+                    self.driver.execute_script(cmd)
+                else:
+                    cmd = "window.scrollTo(0, {0});".format(current_y + screen_y*2)
+                    self.driver.execute_script(cmd)
+                    sleep(3)
+                    self.driver.findspanclassaddclick("Add")
+                    current_y = self.driver.execute_script("return window.pageYOffset;")
+                    get_height = self.driver.execute_script("return document.body.scrollHeight")
+                    if current_y > get_height - get_screen_size["height"] < get_height:
+                        break
 
         getoffers = self.driver.findbyid("headerMyListCount")
         if len(getoffers.text) != 0:
