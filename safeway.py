@@ -1,7 +1,7 @@
 __author__ = 'Vasiliy'
 # auto add items to safeway card
 
-from win32com.server.exception import Exception
+# from win32com.server.exception import Exception
 from selenium import webdriver
 import selenium.webdriver.common.by
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,15 +9,16 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from time import sleep
 from selenium.webdriver.common.keys import Keys
-from win32event import CreateMutex
-from win32api import CloseHandle, GetLastError
-from winerror import ERROR_ALREADY_EXISTS
+from selenium.webdriver.chrome.options import Options
+# from win32event import CreateMutex
+# from win32api import CloseHandle, GetLastError
+# from winerror import ERROR_ALREADY_EXISTS
 from sys import exit
 import psutil
 import os
-import logging
-import smtplib
-from email.mime.text import MIMEText
+# import logging
+# import smtplib
+# from email.mime.text import MIMEText
 import glob
 
 
@@ -40,34 +41,34 @@ def params():
 
     return username, password, pathlink, emailps
 
-def set_logging(name = "", path = "", level = "INFO"):
-    """Set logging tools"""
-
-    # global logger
-    logger = logging.getLogger(name)
-
-    numeric_level = getattr(logging, level.upper(), None)
-    logger.setLevel(numeric_level)
-
-    #log to file
-    if not path:
-        path = os.path.curdir
-    else:
-        try:
-            os.makedirs(path)
-        except:
-            pass
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-    log = os.path.join(path, "%s_%s.log" % (name, time.strftime("%m%d%y_%H%M%S")))
-    fh = logging.FileHandler(log, "w")
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
-    #log to stdout
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    return logger
+# def set_logging(name = "", path = "", level = "INFO"):
+#     """Set logging tools"""
+# 
+#     # global logger
+#     logger = logging.getLogger(name)
+# 
+#     numeric_level = getattr(logging, level.upper(), None)
+#     logger.setLevel(numeric_level)
+# 
+#     #log to file
+#     if not path:
+#         path = os.path.curdir
+#     else:
+#         try:
+#             os.makedirs(path)
+#         except:
+#             pass
+#     formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+#     log = os.path.join(path, "%s_%s.log" % (name, time.strftime("%m%d%y_%H%M%S")))
+#     fh = logging.FileHandler(log, "w")
+#     fh.setFormatter(formatter)
+#     logger.addHandler(fh)
+# 
+#     #log to stdout
+#     ch = logging.StreamHandler()
+#     ch.setFormatter(formatter)
+#     logger.addHandler(ch)
+#     return logger
 
 def cleanup_log():
     """ clean existing log files from working dir"""
@@ -86,45 +87,45 @@ def cleanup_log():
         print("We do not have old log files in directory\r\n")
 
 
-logger = set_logging("Just4you")
+# logger = set_logging("Just4you")
 
 
-def email_results(msg):
-    """ email results"""
-    sender = (params()[0])
-    receiver = (params()[0])
-    passw = (params()[3])
-
-    message = MIMEText(msg)
-    message['Subject'] = "SMTP_SSL email with results from Just4you script"
-    message['From'] = sender
-    message['To'] = receiver
-
-    try:
-        try:
-            print ("\r\nCreate SMTP_SSL object")
-            smtpObj = smtplib.SMTP_SSL ('outbound.att.net', 465)
-
-        except Exception as mess:
-            print ("Error on SMTP object creation: " + str(mess))
-
-        try:
-            print ("Secure login to outgoing mail server")
-            smtpObj.login(sender, passw)
-        except Exception as mess:
-            print ("Error on login: " + str(mess))
-
-        try:
-            print ("Attempt send email")
-            smtpObj.sendmail(sender, receiver, message.as_string())
-        except Exception as mess:
-            print ("Error on send email: " + str(mess))
-        print ("Close instance")
-        smtpObj.quit()
-
-        print ("\r\nEmail with results successfully sent")
-    except Exception as mess:
-        print ("Error: unable to send email %s") % str(mess)
+# def email_results(msg):
+#     """ email results"""
+#     sender = (params()[0])
+#     receiver = (params()[0])
+#     passw = (params()[3])
+# 
+#     message = MIMEText(msg)
+#     message['Subject'] = "SMTP_SSL email with results from Just4you script"
+#     message['From'] = sender
+#     message['To'] = receiver
+# 
+#     try:
+#         try:
+#             print ("\r\nCreate SMTP_SSL object")
+#             smtpObj = smtplib.SMTP_SSL ('outbound.att.net', 465)
+# 
+#         except Exception as mess:
+#             print ("Error on SMTP object creation: " + str(mess))
+# 
+#         try:
+#             print ("Secure login to outgoing mail server")
+#             smtpObj.login(sender, passw)
+#         except Exception as mess:
+#             print ("Error on login: " + str(mess))
+# 
+#         try:
+#             print ("Attempt send email")
+#             smtpObj.sendmail(sender, receiver, message.as_string())
+#         except Exception as mess:
+#             print ("Error on send email: " + str(mess))
+#         print ("Close instance")
+#         smtpObj.quit()
+# 
+#         print ("\r\nEmail with results successfully sent")
+#     except Exception as mess:
+#         print ("Error: unable to send email %s") % str(mess)
 
 
 def kill_chromedriver():
@@ -133,20 +134,20 @@ def kill_chromedriver():
         if name.__contains__('chromedriver'):
             proc.kill()
 
-class SINGLESCRIPT:
-    """ Limits number of running scripts to single instance """
-
-    def __init__(self):
-        self.mutexname = "scriptmutex_{D0E858DF-985E-4907-B7FB-8D732C3FC3B9}"
-        self.mutex = CreateMutex(None, False, self.mutexname)
-        self.lasterror = GetLastError()
-
-    def alreadyrunning(self):
-        return (self.lasterror == ERROR_ALREADY_EXISTS)
-
-    def __del__(self):
-        if self.mutex:
-            CloseHandle(self.mutex)
+# class SINGLESCRIPT:
+#     """ Limits number of running scripts to single instance """
+# 
+#     def __init__(self):
+#         self.mutexname = "scriptmutex_{D0E858DF-985E-4907-B7FB-8D732C3FC3B9}"
+#         self.mutex = CreateMutex(None, False, self.mutexname)
+#         self.lasterror = GetLastError()
+# 
+#     def alreadyrunning(self):
+#         return (self.lasterror == ERROR_ALREADY_EXISTS)
+# 
+#     def __del__(self):
+#         if self.mutex:
+#             CloseHandle(self.mutex)
 
 class ACCOUNT:
     def __init__(self, username, password, path):
@@ -173,16 +174,16 @@ class ACCOUNT:
         self.driver.get(base_url)
         self.driver.maximize_window()
 
-        # Verify that only single instance script is running
-        try:
-            checksingle = SINGLESCRIPT()
-            if checksingle.alreadyrunning():
-                print ("Script already running, quit this instance")
-                self.quit()
-                kill_chromedriver()
-                exit(0)
-        except Exception as mess:
-            print (">>> Exception: %s" % str(mess))
+#         # Verify that only single instance script is running
+#         try:
+#             checksingle = SINGLESCRIPT()
+#             if checksingle.alreadyrunning():
+#                 print ("Script already running, quit this instance")
+#                 self.quit()
+#                 kill_chromedriver()
+#                 exit(0)
+#         except Exception as mess:
+#             print (">>> Exception: %s" % str(mess))
 
         # Find menu
         print ("Find menu Just4U on page")
@@ -244,7 +245,7 @@ class ACCOUNT:
         screen_y = get_screen_size["height"]
         current_y = 0
         current_offers = self.driver.findbyid("headerMyListCount")
-        logger.info("Current offers on Safeway card currently = {0}".format(current_offers.text))
+#         logger.info("Current offers on Safeway card currently = {0}".format(current_offers.text))
         
         #TODO: add good logic here ==========
         offers_found = self.driver.findspanclassaddclick("Add")
@@ -280,17 +281,17 @@ class ACCOUNT:
 
         getoffers = self.driver.findbyid("headerMyListCount")
         if len(getoffers.text) != 0:
-            logger.info("Total offers on Safeway card currently = %s" % str(getoffers.text))
+#             logger.info("Total offers on Safeway card currently = %s" % str(getoffers.text))
             print ("Total offers on Safeway card currently = %s" % str(getoffers.text))
             
-        logger.info("Added {0} offers".format(int(getoffers.text) - int(current_offers.text)))
+#         logger.info("Added {0} offers".format(int(getoffers.text) - int(current_offers.text)))
 
         getgasrewards = self.driver.find_element_by_id("headerRewardsAvailable")
         if len(getgasrewards.text) != "0":
-            logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
+#             logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
             print ("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
         else:
-            logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
+#             logger.info("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
             print ("Total Gas Rewards on Safeway card available = %s" % str(getgasrewards.text))
         return self.driver
 
@@ -303,7 +304,29 @@ class ACCOUNT:
 
 class DRIVER(webdriver.Chrome):
     def __init__(self):
-        webdriver.Chrome.__init__(self)
+        """ initialize with Chrome options(arguments):
+        --start-maximized
+        --no-sandbox
+        disable-infobars
+        disable-web-security
+        password_manager_enabled: False
+        """
+        chrome_options = Options()
+        # disable infobar popup for clean screenshot
+        chrome_options.add_argument("disable-infobars")
+        # chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument('--start-maximized')
+        chrome_options.add_argument("disable-web-security")
+        # docker do not allow run Chrome sandbox, disable it
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_experimental_option('prefs', {
+            'credentials_enable_service': False,
+            'profile': {
+                'password_manager_enabled': False
+            }
+        })
+        
+        webdriver.Chrome.__init__(self, chrome_options = chrome_options)
         pass
 
     def findbyid(self, idname, waittime = 60):
