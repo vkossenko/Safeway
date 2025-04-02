@@ -1,4 +1,4 @@
-# Safeway
+# Safeway just4U
 
   Automatically add Just4U offers to Safeway card. Require Python 3 (make sure path to Python is in PATH variable))
 Main idea to use it - create rule in Outlook and on arriving email from Safeway this script will verify 
